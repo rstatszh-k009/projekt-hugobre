@@ -1,0 +1,34 @@
+---
+title: "Abschlussprojekt"
+autor: "Hugo Bretscher"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+read_csv(here::here("daten/raw/KTZH_00002604_00005328 (2).csv"))
+```
+
+# Einleitung
+
+....folgt noch....
+
+## Daten
+
+Titel: Bevölkerung der Stadt Winterthur, nach Staatenkleingruppe und Quartier
+
+Bestand der wirtschaftlichen Wohnbevölkerung nach Staatenkleingruppe und Quartier per Ende Jahr. Eine vollständige Dokumentation ist der Ressource "Dokumentation Daten" zu finden.
+
+Die Daten stammen vom Statistischen Amt des Kantons Zürich und sind unter folgendem Link abrufbar: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/
+
+## Analyseziele
+
+Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammensetzung der Bevölkerung der Stadt Winterthur in den verschiedenen Quartieren entwickelt hat.
+
+# Daten Aufbereitung
+
+# Daten Visualisierung
