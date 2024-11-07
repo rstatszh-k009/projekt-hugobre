@@ -63,6 +63,11 @@ Daten_Region_und_Stadtkreis_bereinigt <- Daten_Region_bereinigt |>
   filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
 ```
 
+```{r}
+write_csv(x = Daten_Region_und_Stadtkreis_bereinigt,
+          here::here("daten/processed/Daten-Projekt-hugobre.cvs"))
+```
+
 # Daten Visualisierung
 
 ```{r}
