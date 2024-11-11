@@ -1,13 +1,19 @@
-------------------------------------------------------------------------
-
--Gl-- title: "Abschlussprojekt" subtitle: "rstatsZH-K009:" autor: "hugobre" format: html editor: visual editor_options: chunk_output_type: console ---
+--- 
+title: "Abschlussprojekt" 
+subtitle: "rstatsZH-K009:" 
+autor: "hugobre" 
+format: html 
+editor: visual 
+editor_options: 
+  chunk_output_type: console
+---
 
 ```{r}
 library(tidyverse)
 ```
 
 ```{r}
-read_csv(here::here("daten/raw/KTZH_00002604_00005328 (2).csv"))
+winterthur <- read_csv(here::here("daten/raw/KTZH_00002604_00005328.csv"))
 ```
 
 # Einleitung
@@ -29,29 +35,34 @@ Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammenset
 # Daten Aufbereitung
 
 ```{r}
-glimpse(KTZH_00002604_00005328_2_)
+glimpse(winterthur)
 
-Bevölkerung_Winterthur_Quartiere <- KTZH_00002604_00005328_2_[is.na(KTZH_00002604_00005328_2_$gemeinde),] %>% 
-  separate(col = 1, into = c("jahr",
-                                "gemeinde_bfs_nr",
-                                "gemeinde",
-                                "stadtkreis_bfs_nr",
-                                "stadtkreis",
-                                "quartier_bfs_nr",
-                                "quartier",
-                                "staatenkleingruppe",
-                                "region1",
-                                "region2",
-                                "anzahl",
-                                "anzahl_ist_kleingruppe"),
-           sep = ",") %>% 
-  unite(region, c(region1, region2), sep = ", ")
-  
+# Bevölkerung_Winterthur_Quartiere <- KTZH_00002604_00005328_2_[is.na(KTZH_00002604_00005328_2_$gemeinde),] %>% 
+#   separate(col = 1, into = c("jahr",
+#                                 "gemeinde_bfs_nr",
+#                                 "gemeinde",
+#                                 "stadtkreis_bfs_nr",
+#                                 "stadtkreis",
+#                                 "quartier_bfs_nr",
+#                                 "quartier",
+#                                 "staatenkleingruppe",
+#                                 "region1",
+#                                 "region2",
+#                                 "anzahl",
+#                                 "anzahl_ist_kleingruppe"),
+#            sep = ",") %>% 
+#   unite(region, c(region1, region2), sep = ", ")
+#   
 
 ```
 
 ```{r}
-Daten_Region_bereinigt <- rbind(Bevölkerung_Winterthur_Quartiere, Bevölkerung_Winterthur_Quartiere_1)
+#Daten_Region_bereinigt <- rbind(Bevölkerung_Winterthur_Quartiere, Bevölkerung_Winterthur_Quartiere_1)
+
+winterthur |> 
+  distinct(anzahl_ist_kleingruppe)
+
+## ersetze deine Objektnamen durch wintherthur
 
 Daten_Region_bereinigt %>% 
   distinct(anzahl_ist_kleingruppe)
