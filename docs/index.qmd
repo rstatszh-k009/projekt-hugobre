@@ -1,4 +1,4 @@
---- 
+---
 title: "Abschlussprojekt" 
 subtitle: "rstatsZH-K009:" 
 autor: "hugobre" 
@@ -10,6 +10,7 @@ editor_options:
 
 ```{r}
 library(tidyverse)
+library(ggthemes)
 ```
 
 ```{r}
@@ -30,7 +31,7 @@ Die Daten stammen vom Statistischen Amt des Kantons Zürich und sind unter folge
 
 ## Analyseziele
 
-Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammensetzung der Bevölkerung der Stadt Winterthur in den verschiedenen Quartieren entwickelt hat.
+Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammensetzung der Bevölkerung der Stadt Winterthur entwickelt hat.
 
 # Daten Aufbereitung
 
@@ -57,12 +58,10 @@ glimpse(winterthur)
 ```
 
 ```{r}
-#Daten_Region_bereinigt <- rbind(Bevölkerung_Winterthur_Quartiere, Bevölkerung_Winterthur_Quartiere_1)
-
 winterthur |> 
   distinct(anzahl_ist_kleingruppe)
 
-## ersetze deine Objektnamen durch wintherthur
+# ersetze deine Objektnamen durch wintherthur
 
 Daten_Region_bereinigt %>% 
   distinct(anzahl_ist_kleingruppe)
@@ -72,6 +71,8 @@ Daten_Region_bereinigt %>%
 
 Daten_Region_und_Stadtkreis_bereinigt <- Daten_Region_bereinigt |> 
   filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
+
+Winterthur <- Daten_Region_und_Stadtkreis_bereinigt
 ```
 
 ```{r}
@@ -79,13 +80,89 @@ write_csv(x = Daten_Region_und_Stadtkreis_bereinigt,
           here::here("daten/processed/Daten-Projekt-hugobre.cvs"))
 ```
 
+```{r}
+Winterthur_fct <- Winterthur |> 
+  mutate(anzahl = factor(anzahl))
+
+Winterthur_fct$anzahl <- gsub("[^0-9.]", "", Winterthur_fct$anzahl)
+
+Winterthur_fct$anzahl <- as.numeric(Winterthur_fct$anzahl)
+
+Summe_Jahr_ohne_CH<- Winterthur_fct |> 
+  group_by(jahr, staatenkleingruppe) |> 
+  summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
+  filter(staatenkleingruppe != "Schweiz")
+
+Groesste_Gruppen_Winterthur <- Summe_Jahr_ohne_CH |> 
+  filter(staatenkleingruppe %in% c("Deutschland", "Italien", "Asien", "Mazedonien", "Türkei", "Afrika"))
+
+Winterthur |> 
+  group_by(quartier, staatenkleingruppe)
+```
+
+```{r}
+Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr |> 
+  arrange(staatenkleingruppe, jahr) |> 
+  group_by(staatenkleingruppe) |> 
+  mutate(differenz = summe - lag(summe)) |> 
+  ungroup()
+```
+
+```{r}
+Daten_Region_und_Stadtkreis_bereinigt$staat_gruppe <- ifelse(Daten_Region_und_Stadtkreis_bereinigt$staatenkleingruppe == "Schweiz", "Schweiz", "Ausland")
+
+Daten_Region_und_Stadtkreis_bereinigt$anzahl <- 
+  as.numeric(Daten_Region_und_Stadtkreis_bereinigt$anzahl)
+
+Winterthur_total <- Daten_Region_und_Stadtkreis_bereinigt |> 
+  group_by(jahr, staat_gruppe) |> 
+  summarise(sum = sum(anzahl, na.rm = TRUE))
+```
+
 # Daten Visualisierung
 
 ```{r}
-ggplot(data = Daten_Region_und_Stadtkreis_bereinigt,
-       mapping = aes(x= stadtkreis,
-                     y= anzahl,
-                     fill = staatenkleingruppe)) +
-  geom_col()
+ggplot(data = Winterthur_total, 
+       mapping = aes(x= jahr,
+                     y= sum,
+                     fill = staat_gruppe))+
+  geom_col()+
+  scale_fill_manual(values = c("aquamarine3", "aquamarine4")) +
+  
+    labs(title = "Bevölkerungsentwicklung Winterthur",
+         subtitle = "Ausländer, Schweizer",
+         y = "Anzahl Personen",
+         x = "Jahr",
+         fill = "Staatsangehörigkeit",
+         caption = "Daten: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/") +
+    theme_minimal(base_size = 12) +
+    theme(panel.grid.major.x = element_blank(),
+          axis.text.x = element_text(angle = 90, 
+                                     vjust = 0.5))
+```
 
+```{r}
+ggplot(data = Groesste_Gruppen_Winterthur,
+       mapping = aes (x = jahr,
+                      y = summe,
+                      group = staatenkleingruppe,
+                      color = staatenkleingruppe))+
+  geom_line()+
+  scale_color_colorblind()+
+  labs(title = "Bevölkerungsentwicklung Winterthur",
+        subtitle = "Entwicklung der 6 grössten Ausländergruppen in den letzten 10 Jahren",
+         y = "Anzahl Personen",
+         x = "Jahr",
+         color = "Ausländergruppen", shape = "Ausländergruppen",
+         caption = "Daten: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/") +
+    theme_minimal(base_size = 12) +
+    theme(panel.grid.major.x = element_blank(),
+          axis.text.x = element_text(angle = 90, 
+                                     vjust = 0.5))
+```
+
+```{r}
+```
+
+```{r}
 ```
