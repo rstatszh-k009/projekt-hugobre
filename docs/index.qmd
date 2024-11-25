@@ -63,13 +63,13 @@ winterthur |>
 
 # ersetze deine Objektnamen durch wintherthur
 
-Daten_Region_bereinigt %>% 
+winterthur %>% 
   distinct(anzahl_ist_kleingruppe)
 
-Daten_Region_bereinigt %>% 
+winterthur %>% 
   filter(stadtkreis == "unbekannt")
 
-Daten_Region_und_Stadtkreis_bereinigt <- Daten_Region_bereinigt |> 
+Daten_Region_und_Stadtkreis_bereinigt <- winterthur |> 
   filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
 
 Winterthur <- Daten_Region_und_Stadtkreis_bereinigt
@@ -77,7 +77,7 @@ Winterthur <- Daten_Region_und_Stadtkreis_bereinigt
 
 ```{r}
 write_csv(x = Daten_Region_und_Stadtkreis_bereinigt,
-          here::here("daten/processed/Daten-Projekt-hugobre.cvs"))
+          here::here("daten/processed/Daten-Projekt-hugobre.csv"))
 ```
 
 ```{r}
@@ -101,11 +101,11 @@ Winterthur |>
 ```
 
 ```{r}
-Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr |> 
-  arrange(staatenkleingruppe, jahr) |> 
-  group_by(staatenkleingruppe) |> 
-  mutate(differenz = summe - lag(summe)) |> 
-  ungroup()
+# Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr |> 
+#   arrange(staatenkleingruppe, jahr) |> 
+#   group_by(staatenkleingruppe) |> 
+#   mutate(differenz = summe - lag(summe)) |> 
+#   ungroup()
 ```
 
 ```{r}
