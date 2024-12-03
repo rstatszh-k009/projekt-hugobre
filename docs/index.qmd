@@ -2,24 +2,39 @@
 title: "Abschlussprojekt" 
 subtitle: "rstatsZH-K009:" 
 autor: "hugobre" 
-format: html 
+format: 
+  html:
+    embed-resources: true
+    toc: true
+execute: 
+  warning: false
+# mögliche auswahl für jahr sind: 2014, 2015, 2016 usw. bis 2023
+# mögliche auswahl für stadtkreis sind: Stadt, Veltheim, Seen, Töss, Mattenbach, Oberwinterthur, Wülflingen
+params:
+  jahr: 2023
+  stadtkreis: Veltheim
 editor: visual 
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r}
-library(tidyverse)
-library(ggthemes)
+source(here::here("analyse/01-daten-aufbereitung.R"))
 ```
 
 ```{r}
-winterthur <- read_csv(here::here("daten/raw/KTZH_00002604_00005328.csv"))
+daten_stadtkreis <- winterthur_daten_bereinigt |> 
+  group_by(jahr, stadtkreis, staatenkleingruppe) |> 
+  summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
+  filter(stadtkreis == params$stadtkreis, jahr == params$jahr) |> 
+  knitr::kable()
+  
+
 ```
 
 # Einleitung
 
-....folgt noch....
+Im Rahmen des R-Kurses wird zum Abschluss von jedem Teilnehmer eine Projektarbeit erstellt. Die Anforderungen sind unter <https://rstatszh-k009.github.io/website/abschlussprojekt/> zu finden.
 
 ## Daten
 
@@ -27,7 +42,7 @@ Titel: Bevölkerung der Stadt Winterthur, nach Staatenkleingruppe und Quartier
 
 Bestand der wirtschaftlichen Wohnbevölkerung nach Staatenkleingruppe und Quartier per Ende Jahr. Eine vollständige Dokumentation ist der Ressource "Dokumentation Daten" zu finden.
 
-Die Daten stammen vom Statistischen Amt des Kantons Zürich und sind unter folgendem Link abrufbar: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/
+Die Daten stammen vom Statistischen Amt des Kantons Zürich und sind unter folgendem Link abrufbar: <https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/>
 
 ## Analyseziele
 
@@ -38,57 +53,44 @@ Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammenset
 ```{r}
 glimpse(winterthur)
 
-# Bevölkerung_Winterthur_Quartiere <- KTZH_00002604_00005328_2_[is.na(KTZH_00002604_00005328_2_$gemeinde),] %>% 
-#   separate(col = 1, into = c("jahr",
-#                                 "gemeinde_bfs_nr",
-#                                 "gemeinde",
-#                                 "stadtkreis_bfs_nr",
-#                                 "stadtkreis",
-#                                 "quartier_bfs_nr",
-#                                 "quartier",
-#                                 "staatenkleingruppe",
-#                                 "region1",
-#                                 "region2",
-#                                 "anzahl",
-#                                 "anzahl_ist_kleingruppe"),
-#            sep = ",") %>% 
-#   unite(region, c(region1, region2), sep = ", ")
-#   
-
+winterthur |> 
+  distinct(stadtkreis)
 ```
 
 ```{r}
 winterthur |> 
   distinct(anzahl_ist_kleingruppe)
 
-# ersetze deine Objektnamen durch wintherthur
 
-Daten_Region_bereinigt %>% 
-  distinct(anzahl_ist_kleingruppe)
+winterthur %>% 
+filter(stadtkreis == "unbekannt")
 
-Daten_Region_bereinigt %>% 
-  filter(stadtkreis == "unbekannt")
+winterthur_daten_bereinigt <- winterthur |> 
+ filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
 
-Daten_Region_und_Stadtkreis_bereinigt <- Daten_Region_bereinigt |> 
-  filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
-
-Winterthur <- Daten_Region_und_Stadtkreis_bereinigt
 ```
 
 ```{r}
-write_csv(x = Daten_Region_und_Stadtkreis_bereinigt,
+Bevölkerung_Winterthur_Stadtkreise <- winterthur_daten_bereinigt |> 
+  group_by(jahr, stadtkreis, staatenkleingruppe) |> 
+  summarise(summe = sum(anzahl, na.rm = TRUE))
+   
+```
+
+```{r}
+ write_csv(x = winterthur_daten_bereinigt,
           here::here("daten/processed/Daten-Projekt-hugobre.cvs"))
 ```
 
 ```{r}
-Winterthur_fct <- Winterthur |> 
+winterthur_fct <- winterthur |> 
   mutate(anzahl = factor(anzahl))
 
-Winterthur_fct$anzahl <- gsub("[^0-9.]", "", Winterthur_fct$anzahl)
+winterthur_fct$anzahl <- gsub("[^0-9.]", "", winterthur_fct$anzahl)
 
-Winterthur_fct$anzahl <- as.numeric(Winterthur_fct$anzahl)
+winterthur_fct$anzahl <- as.numeric(winterthur_fct$anzahl)
 
-Summe_Jahr_ohne_CH<- Winterthur_fct |> 
+Summe_Jahr_ohne_CH<- winterthur_fct |> 
   group_by(jahr, staatenkleingruppe) |> 
   summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
   filter(staatenkleingruppe != "Schweiz")
@@ -96,12 +98,10 @@ Summe_Jahr_ohne_CH<- Winterthur_fct |>
 Groesste_Gruppen_Winterthur <- Summe_Jahr_ohne_CH |> 
   filter(staatenkleingruppe %in% c("Deutschland", "Italien", "Asien", "Mazedonien", "Türkei", "Afrika"))
 
-Winterthur |> 
-  group_by(quartier, staatenkleingruppe)
 ```
 
 ```{r}
-Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr |> 
+Summe_Jahr_ohne_CH |> 
   arrange(staatenkleingruppe, jahr) |> 
   group_by(staatenkleingruppe) |> 
   mutate(differenz = summe - lag(summe)) |> 
@@ -109,14 +109,15 @@ Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr |>
 ```
 
 ```{r}
-Daten_Region_und_Stadtkreis_bereinigt$staat_gruppe <- ifelse(Daten_Region_und_Stadtkreis_bereinigt$staatenkleingruppe == "Schweiz", "Schweiz", "Ausland")
+winterthur_daten_bereinigt$staat_gruppe <- ifelse(winterthur_daten_bereinigt$staatenkleingruppe == "Schweiz", "Schweiz", "Ausland")
 
-Daten_Region_und_Stadtkreis_bereinigt$anzahl <- 
-  as.numeric(Daten_Region_und_Stadtkreis_bereinigt$anzahl)
+winterthur_daten_bereinigt$anzahl <- 
+  as.numeric(winterthur_daten_bereinigt$anzahl)
 
-Winterthur_total <- Daten_Region_und_Stadtkreis_bereinigt |> 
+Winterthur_total <- winterthur_daten_bereinigt |> 
   group_by(jahr, staat_gruppe) |> 
-  summarise(sum = sum(anzahl, na.rm = TRUE))
+  summarise(sum = sum(anzahl, na.rm = TRUE)) |> 
+  mutate(anzahl_in_prozent = sum / sum(sum) * 100)
 ```
 
 # Daten Visualisierung
@@ -124,21 +125,21 @@ Winterthur_total <- Daten_Region_und_Stadtkreis_bereinigt |>
 ```{r}
 ggplot(data = Winterthur_total, 
        mapping = aes(x= jahr,
-                     y= sum,
+                     y= anzahl_in_prozent,
                      fill = staat_gruppe))+
   geom_col()+
   scale_fill_manual(values = c("aquamarine3", "aquamarine4")) +
-  
+  geom_text(aes(label = paste0(round(anzahl_in_prozent,0), "%")),
+                position = position_stack(vjust = 0.5),
+                color = "black") +
+  coord_flip()+
     labs(title = "Bevölkerungsentwicklung Winterthur",
          subtitle = "Ausländer, Schweizer",
-         y = "Anzahl Personen",
+         y = NULL,
          x = "Jahr",
          fill = "Staatsangehörigkeit",
-         caption = "Daten: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/") +
-    theme_minimal(base_size = 12) +
-    theme(panel.grid.major.x = element_blank(),
-          axis.text.x = element_text(angle = 90, 
-                                     vjust = 0.5))
+         caption = "Daten: https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/")+
+  theme_minimal()
 ```
 
 ```{r}
