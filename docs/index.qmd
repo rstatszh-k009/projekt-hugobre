@@ -62,13 +62,11 @@ winterthur |>
   distinct(anzahl_ist_kleingruppe)
 
 
-winterthur %>% 
+winterthur %>%
 filter(stadtkreis == "unbekannt")
 
-winterthur_daten_bereinigt <- winterthur |> 
- filter(stadtkreis %in% c("Stadt","Veltheim","Seen", "Töss", "Mattenbach", "Oberwinterthur", "Wülflingen"))
-
 ```
+
 
 ```{r}
 Bevölkerung_Winterthur_Stadtkreise <- winterthur_daten_bereinigt |> 
@@ -77,10 +75,6 @@ Bevölkerung_Winterthur_Stadtkreise <- winterthur_daten_bereinigt |>
    
 ```
 
-```{r}
- write_csv(x = winterthur_daten_bereinigt,
-          here::here("daten/processed/Daten-Projekt-hugobre.cvs"))
-```
 
 ```{r}
 winterthur_fct <- winterthur |> 
@@ -106,6 +100,12 @@ Summe_Jahr_ohne_CH |>
   group_by(staatenkleingruppe) |> 
   mutate(differenz = summe - lag(summe)) |> 
   ungroup()
+
+Jaehrliche_Zunahme_AU_Winterthur <- Summe_Jahr_ohne_CH |> 
+  arrange(staatenkleingruppe, jahr) |> 
+   group_by(staatenkleingruppe) |> 
+   mutate(differenz = summe - lag(summe)) |> 
+   ungroup()
 ```
 
 ```{r}
