@@ -1,1 +1,6 @@
-﻿variable_name;beschreibung
+variable_name;beschreibung
+jahr;zeigt die Jahre im Datensatz
+stadtkreis;in dieser Spalte sind die Namen der Stadtkreise von Winterthur erfasst
+quartier;jeder stadtkreis ist in Quartiere unterteilt, hier sind die Quartiernamen erfasst
+staatenkleingruppe;zeigt welchem Land/Kontinent die Anzahl Personen zu zuordnen sind
+anzahl;anzahl Personen pro staatenkleingruppe

@@ -11,8 +11,8 @@ execute:
 # mögliche auswahl für jahr sind: 2014, 2015, 2016 usw. bis 2023
 # mögliche auswahl für stadtkreis sind: Stadt, Veltheim, Seen, Töss, Mattenbach, Oberwinterthur, Wülflingen
 params:
-  jahr: 2023
-  stadtkreis: Veltheim
+  jahr: 2020
+  stadtkreis: Töss
 editor: visual 
 editor_options: 
   chunk_output_type: console
@@ -22,19 +22,9 @@ editor_options:
 source(here::here("analyse/01-daten-aufbereitung.R"))
 ```
 
-```{r}
-daten_stadtkreis <- winterthur_daten_bereinigt |> 
-  group_by(jahr, stadtkreis, staatenkleingruppe) |> 
-  summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
-  filter(stadtkreis == params$stadtkreis, jahr == params$jahr) |> 
-  knitr::kable()
-  
-
-```
-
 # Einleitung
 
-Im Rahmen des R-Kurses wird zum Abschluss von jedem Teilnehmer eine Projektarbeit erstellt. Die Anforderungen sind unter <https://rstatszh-k009.github.io/website/abschlussprojekt/> zu finden.
+Im Rahmen des R-Kurses wird zum Abschluss von jedem Teilnehmer eine Projektarbeit erstellt. Die Anforderungen sind unter <https://rstatszh-k009.github.io/website/abschlussprojekt/> zu finden. Das Abschlussprojekt bietet die Möglichkeit, die erlernten Fähigkeiten auf realen Datensätzen anzuwenden.
 
 ## Daten
 
@@ -46,7 +36,7 @@ Die Daten stammen vom Statistischen Amt des Kantons Zürich und sind unter folge
 
 ## Analyseziele
 
-Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammensetzung der Bevölkerung der Stadt Winterthur entwickelt hat.
+Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammensetzung der Bevölkerung der Stadt Winterthur und in deren Stadtkreisen entwickelt hat.
 
 # Daten Aufbereitung
 
@@ -67,14 +57,12 @@ filter(stadtkreis == "unbekannt")
 
 ```
 
-
 ```{r}
 Bevölkerung_Winterthur_Stadtkreise <- winterthur_daten_bereinigt |> 
-  group_by(jahr, stadtkreis, staatenkleingruppe) |> 
+  group_by(stadtkreis, staatenkleingruppe, jahr) |> 
   summarise(summe = sum(anzahl, na.rm = TRUE))
    
 ```
-
 
 ```{r}
 winterthur_fct <- winterthur |> 
@@ -120,9 +108,25 @@ Winterthur_total <- winterthur_daten_bereinigt |>
   mutate(anzahl_in_prozent = sum / sum(sum) * 100)
 ```
 
+```{r}
+winterthur_daten_bereinigt |> 
+  filter(staatenkleingruppe != "Schweiz") |> 
+  group_by(stadtkreis, staatenkleingruppe, jahr) |> 
+  summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
+  mutate(diff_zu_vorjahr = summe - lag(summe)) |> 
+  aggregate(diff_zu_vorjahr ~ stadtkreis + jahr, sum) |> 
+  group_by(jahr) |> 
+  summarise(max_wert = max(diff_zu_vorjahr)) |> 
+  arrange(desc(jahr))
+  
+```
+
+
 # Daten Visualisierung
 
 ```{r}
+#| label: fig-bevölkerungsentwicklung
+
 ggplot(data = Winterthur_total, 
        mapping = aes(x= jahr,
                      y= anzahl_in_prozent,
@@ -143,6 +147,8 @@ ggplot(data = Winterthur_total,
 ```
 
 ```{r}
+#| label: fig-groesstegruppen
+
 ggplot(data = Groesste_Gruppen_Winterthur,
        mapping = aes (x = jahr,
                       y = summe,
@@ -163,7 +169,27 @@ ggplot(data = Groesste_Gruppen_Winterthur,
 ```
 
 ```{r}
+#| label: tbl-stadtkreis
+#| tbl-cap: Zusammensetzung der Bevölkerung
+
+daten_stadtkreis <- winterthur_daten_bereinigt |> 
+  group_by(stadtkreis, staatenkleingruppe, jahr) |> 
+  summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
+  mutate(diff_zu_vorjahr = summe - lag(summe)) |> 
+  mutate(diff_in_prozent = round(diff_zu_vorjahr * 100 / summe,2)) |> 
+  filter(stadtkreis == params$stadtkreis, jahr == params$jahr) |> 
+  knitr::kable(caption = paste("im Stadtkreis", params$stadtkreis, "im Jahr", params$jahr))
+  
+daten_stadtkreis
 ```
 
-```{r}
-```
+
+# Ergebnisse
+
+In @fig-bevölkerungsentwicklung ist die Zusammensetzung der Bevölkerung der Stadt Winterthur nach Herkunft dargestellt. Ebenso zeigt die Visualisierung, wie sich der Ausländeranteil von 2014 bis 2023 entwickelt hat. Es ist offensichtlich, dass der Anteil Ausländer an der städtischen Bevölkerung stetig wächst.
+
+In @fig-groesstegruppen wird aufgezeigt, wie sich die grössten 6 Ausländergruppen entwickeln. Die grössten Anteile machen die Deutschen und die Italiener aus. Während der Zuwachs bei den Deutschen und den Mazedoniern in den letzten Jahren eher gering ist, sind die Zugänge bei den Asiaten und Afrikanern rasant angestiegen.
+
+Die @tbl-stadtkreis zeigt die Zusammensetzung und Entwicklung der Bevölkerung der im YAML-Berichtskopf ausgewählten Parameter Stadtkreis und Jahr.
+
+# Schlussfolgerungen
