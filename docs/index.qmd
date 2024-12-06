@@ -117,13 +117,10 @@ winterthur_daten_bereinigt |>
   mutate(diff_zu_vorjahr = summe - lag(summe)) |> 
   filter(!is.na(diff_zu_vorjahr)) |>
   # diese Zeile und die folgende wurden geschrieben um aggregate() zu ersetzen
-  group_by(stadtkreis, jahr) |>
+  group_by(jahr, stadtkreis) |>
   summarise(summe = sum(diff_zu_vorjahr)) |> 
-  summarise(
-    max_summe = max(summe),
-    # dieser Code bringt auch die Jahreszahl als Spalte mit
-    jahr_max_summe = jahr[which.max(summe)]
-  )
+  filter(summe == max(summe))
+ 
 
 ```
 # Daten Visualisierung
