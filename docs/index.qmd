@@ -1,7 +1,7 @@
 ---
-title: "Abschlussprojekt" 
-subtitle: "rstatsZH-K009:" 
-autor: "hugobre" 
+title: "Bevölkerungsentwicklung Stadt Winterthur" 
+author: "hugobre" 
+date: 12.10.2024
 format: 
   html:
     embed-resources: true
@@ -11,16 +11,14 @@ execute:
 # mögliche auswahl für jahr sind: 2014, 2015, 2016 usw. bis 2023
 # mögliche auswahl für stadtkreis sind: Stadt, Veltheim, Seen, Töss, Mattenbach, Oberwinterthur, Wülflingen
 params:
-  jahr: 2020
-  stadtkreis: Töss
+  jahr: 2015
+  stadtkreis: Wülflingen
 editor: visual 
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r}
-source(here::here("analyse/01-daten-aufbereitung.R"))
-```
+
 
 # Einleitung
 
@@ -41,23 +39,14 @@ Mittels Datenaufbereitung und Visualisierung aufzeigen, wie sich die Zusammenset
 # Daten Aufbereitung
 
 ```{r}
-glimpse(winterthur)
+# Der Datenimport und die Datenbereinigung werden in 01-daten-aufbereitung.R vorgenommen
 
-winterthur |> 
-  distinct(stadtkreis)
+source(here::here("analyse/01-daten-aufbereitung.R"))
 ```
 
 ```{r}
-winterthur |> 
-  distinct(anzahl_ist_kleingruppe)
+# Mit den nachstehenden Codes werden die Daten zu Objekten ausgewertet.
 
-
-winterthur %>%
-filter(stadtkreis == "unbekannt")
-
-```
-
-```{r}
 Bevölkerung_Winterthur_Stadtkreise <- winterthur_daten_bereinigt |> 
   group_by(stadtkreis, staatenkleingruppe, jahr) |> 
   summarise(summe = sum(anzahl, na.rm = TRUE))
@@ -109,23 +98,23 @@ Winterthur_total <- winterthur_daten_bereinigt |>
 ```
 
 ```{r}
-winterthur_daten_bereinigt |> 
+grösster_zuwachs_pro_jahr <- winterthur_daten_bereinigt |> 
   filter(staatenkleingruppe != "Schweiz") |> 
   group_by(stadtkreis, staatenkleingruppe, jahr) |> 
   summarise(summe = sum(anzahl, na.rm = TRUE)) |> 
   mutate(diff_zu_vorjahr = summe - lag(summe)) |> 
-  aggregate(diff_zu_vorjahr ~ stadtkreis + jahr, sum) |> 
-  group_by(jahr) |> 
-  summarise(max_wert = max(diff_zu_vorjahr)) |> 
-  arrange(desc(jahr))
+  filter(!is.na(diff_zu_vorjahr)) |> 
+  group_by(jahr, stadtkreis) |> 
+  summarise(summe = sum(diff_zu_vorjahr)) |> 
+  filter(summe == max(summe))
   
 ```
-
 
 # Daten Visualisierung
 
 ```{r}
 #| label: fig-bevölkerungsentwicklung
+#| fig-cap: Zusammensetzung Schweizer Ausländer
 
 ggplot(data = Winterthur_total, 
        mapping = aes(x= jahr,
@@ -148,6 +137,7 @@ ggplot(data = Winterthur_total,
 
 ```{r}
 #| label: fig-groesstegruppen
+#| fig-cap: Entwicklung der grössten Ausländergruppen
 
 ggplot(data = Groesste_Gruppen_Winterthur,
        mapping = aes (x = jahr,
@@ -157,7 +147,7 @@ ggplot(data = Groesste_Gruppen_Winterthur,
   geom_line()+
   scale_color_colorblind()+
   labs(title = "Bevölkerungsentwicklung Winterthur",
-        subtitle = "Entwicklung der 6 grössten Ausländergruppen in den letzten 10 Jahren",
+       subtitle = "Entwicklung der 6 grössten Ausländergruppen in den letzten 10 Jahren",
          y = "Anzahl Personen",
          x = "Jahr",
          color = "Ausländergruppen", shape = "Ausländergruppen",
@@ -166,6 +156,14 @@ ggplot(data = Groesste_Gruppen_Winterthur,
     theme(panel.grid.major.x = element_blank(),
           axis.text.x = element_text(angle = 90, 
                                      vjust = 0.5))
+```
+
+```{r}
+#| label: tbl-zuwachs
+#| tbl-cap: Grösster Zuwachs der ausländischen Bevölkerung
+
+grösster_zuwachs_pro_jahr |>
+  knitr::kable(caption = "pro Jahr")
 ```
 
 ```{r}
@@ -183,13 +181,24 @@ daten_stadtkreis <- winterthur_daten_bereinigt |>
 daten_stadtkreis
 ```
 
-
 # Ergebnisse
 
 In @fig-bevölkerungsentwicklung ist die Zusammensetzung der Bevölkerung der Stadt Winterthur nach Herkunft dargestellt. Ebenso zeigt die Visualisierung, wie sich der Ausländeranteil von 2014 bis 2023 entwickelt hat. Es ist offensichtlich, dass der Anteil Ausländer an der städtischen Bevölkerung stetig wächst.
 
 In @fig-groesstegruppen wird aufgezeigt, wie sich die grössten 6 Ausländergruppen entwickeln. Die grössten Anteile machen die Deutschen und die Italiener aus. Während der Zuwachs bei den Deutschen und den Mazedoniern in den letzten Jahren eher gering ist, sind die Zugänge bei den Asiaten und Afrikanern rasant angestiegen.
 
+Aus @tbl-zuwachs geht hervor, in welchem Jahr und in welchem Stadtkreis der Zuwachs der ausländischen Bevölkerungen am stärksten gestiegen ist.
+
 Die @tbl-stadtkreis zeigt die Zusammensetzung und Entwicklung der Bevölkerung der im YAML-Berichtskopf ausgewählten Parameter Stadtkreis und Jahr.
 
 # Schlussfolgerungen
+
+-   Die Bevölkerung der Stadt Winterthur nimmt stehtig zu
+
+-   Der Ausländeranteil der Bevölkerung der Stadt Winterthur nimmt stehtig zu
+
+-   Den grössten Anteil an der ausländischen Bevölkerung stellen die Deutschen und die Italiener
+
+-   Die grösste Zuwanderung in den letzten 10 Jahren erfolgte aus Asien und Afrika
+
+-   Der Stadtkreis mit der höchsten Zuwanderung ändert von Jahr zu Jahr

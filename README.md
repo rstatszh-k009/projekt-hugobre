@@ -1,26 +1,31 @@
 # Abschlussprojekt rstatsZH
 
-Nachfolgend werden die Arbeitsschritte im Projekt hugobre aufgezeigt.
+**Datenquelle:** <https://80f9258a5dce458d9deb867bd821a716.app.posit.cloud/#0>
+**Code:** [Quarto Datei](https://github.com/rstatszh.k009/projekt-hugobre/blob/master/docs/index.qmd)
 
-## Datenauswahl
+## Projektbeschreibung
+Im Projekt wird aufgezeigt, wie sich die Bevölkerung, vor allem der ausländische Anteil, der Stadt Winterthur und in den Stadtkreisen entwickelt hat. Ebenso wird aufgezeigt, welcher Stadtkreis in welchem Jahr die stärkste Zuwanderung zu verzeichnen hatte.
 
-Im Modul 05 (22. Oktober 2024) wurden wir aufgefordert Daten für das Abschlusspojekt auszuwählen. Ich habe
-mich für einen OGD-Datensatz des Statistischen Amtes des Kantons Zürich entschieden.
 
-## Projekt aufsetzen
+## Daten
 
-Am 24. Oktober habe ich mein Projekt mittels Erstellen eines neuen Repository auf GitHub und 
-klonen in die Posit Cloud aufgesetzt. Gleichzeitig wurden neue Ordner eingerichtet und die ausgewählten
-Daten in den Ornder raw hochgeladen.
+Die Indikatoren in diesem Datensatz zeigen den Bestand der wirtschaftlichen Wohnbevölkerung nach Staatenkleingruppe und Quartier per Ende Jahr. 
 
-## Arbeiten am Projekt
+### `daten/raw/`
 
-Nun konnten die eigentlichen Arbeiten wie Datenbereinigung, -auswertung und Visualisierung beginnen.
+Hier sind die Rohdaten abgelegt, welche mittels eines Skript zu bereinigten Daten bearbeitet wurden.
 
-## Projetkabschluss
+### `daten/processed/`
 
-Das Projekt wurde am 10. Dezember 2024 abgeschlossen und auf GitHub freigegeben.
+Hier sind die bereinigten Rohdaten zu finden.
 
-## Dank
+**Daten-Projekt-hugobre-bereinigt.csv**
 
-Vielen Dank an Lars Schöbitz für den lehrreichen R-Kurs und die stetige Hilfsbereitschaft.
+## Mitwirkende
+
+Vielen Dank an [@larnsce](https://github.com/larnsce) für den lehrreichen R-Kurs und die stetige Hilfsbereitschaft.
+
+## Kontakt
+
+- Hugo Bretscher
+- hugo.bretscher@zh.ch
