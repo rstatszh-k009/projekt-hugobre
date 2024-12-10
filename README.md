@@ -1,7 +1,8 @@
 # Abschlussprojekt rstatsZH
 
 **Datenquelle:** <https://www.zh.ch/de/politik-staat/statistik-daten/datenkatalog.html#/>
-**Code:** [Quarto Datei](index.qmd)
+
+**Code:** [Quarto Datei](https://github.com/rstatszh-k009/projekt-hugobre/blob/master/docs/index.qmd)
 
 ## Projektbeschreibung
 Im Projekt wird aufgezeigt, wie sich die Bevölkerung, vor allem der ausländische Anteil, der Stadt Winterthur und in den Stadtkreisen entwickelt hat. Ebenso wird aufgezeigt, welcher Stadtkreis in welchem Jahr die stärkste Zuwanderung zu verzeichnen hatte.
