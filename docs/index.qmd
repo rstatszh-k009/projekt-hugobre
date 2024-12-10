@@ -2,10 +2,8 @@
 title: "Bevölkerungsentwicklung Stadt Winterthur" 
 author: "hugobre" 
 date: 12.10.2024
-format: 
-  html:
-    embed-resources: true
-    toc: true
+format: html
+toc: true
 execute: 
   warning: false
 # mögliche auswahl für jahr sind: 2014, 2015, 2016 usw. bis 2023
